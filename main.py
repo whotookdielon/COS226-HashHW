@@ -13,7 +13,7 @@ import csv
 import sys
 import time
 
-TABLE_SIZE = 20011
+TABLE_SIZE = 32771
 
 
 def hash_key(key):
@@ -22,6 +22,12 @@ def hash_key(key):
     for character in key:
         number = number ^ ord(character)
         number = (number * 1099511628211) % (2 ** 64)
+    # Mix the bits again to spread starting indexes more evenly.
+    number = number ^ (number >> 30)
+    number = (number * 0xBF58476D1CE4E5B9) % (2 ** 64)
+    number = number ^ (number >> 27)
+    number = (number * 0x94D049BB133111EB) % (2 ** 64)
+    number = number ^ (number >> 31)
     return number
 
 
@@ -105,7 +111,7 @@ def main():
     # Reads the optional CSV filename and runs both hash table tests.
     filename = sys.argv[1] if len(sys.argv) > 1 else "MOCK_DATA.csv"
     movies = load_movies(filename)
-    print("ATTEMPT 4: Linear probing with FNV-1a hash")
+    print("ATTEMPT 5: Linear probing with extra mixing and a larger table")
     print("CSV records loaded:", len(movies))
     print("Collision = occupied node/slot inspected during insertion")
     show_table(movies, "movie_title", "TITLE")

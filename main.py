@@ -13,14 +13,16 @@ import csv
 import sys
 import time
 
-TABLE_SIZE = 4099
+TABLE_SIZE = 20011
 
 
 def hash_key(key):
-    # A poor hash: keys starting with the same character get the same index.
-    if key == "":
-        return 0
-    return ord(key[0])
+    # FNV-1a uses every character in the key to calculate a hash value.
+    number = 14695981039346656037
+    for character in key:
+        number = number ^ ord(character)
+        number = (number * 1099511628211) % (2 ** 64)
+    return number
 
 
 class Node:
@@ -111,7 +113,7 @@ def main():
     # Reads the optional CSV filename and runs both hash table tests.
     filename = sys.argv[1] if len(sys.argv) > 1 else "MOCK_DATA.csv"
     movies = load_movies(filename)
-    print("ATTEMPT 1: Linked lists with first-letter hash")
+    print("ATTEMPT 2: Linked lists with FNV-1a hash")
     print("CSV records loaded:", len(movies))
     print("Collision = occupied node/slot inspected during insertion")
     show_table(movies, "movie_title", "TITLE")
